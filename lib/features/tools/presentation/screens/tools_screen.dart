@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 // 'Keşfet' ekranındaki kartın tasarımını burada YENİDEN KULLANACAĞIZ!
 import 'package:color_discovery/features/discover_quiz/presentation/widgets/quiz_option_card.dart';
+import 'package:color_discovery/features/tools/presentation/screens/harmony_builder_screen.dart';
+
 
 class ToolsScreen extends StatelessWidget {
   const ToolsScreen({super.key});
@@ -45,11 +47,10 @@ class ToolsScreen extends StatelessWidget {
               title: 'Renk Teorisi Yardımcısı',
               icon: Icons.contrast, // İkonu değiştirdik
               onTap: () {
-                // TODO: Adım 11'de bu ekranı yapacağız
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Bu özellik yakında eklenecek!'),
-                  ),
+               Navigator.of(context).push(
+            MaterialPageRoute(
+             builder: (context) => const HarmonyBuilderScreen(),
+             ),
                 );
               },
             ),

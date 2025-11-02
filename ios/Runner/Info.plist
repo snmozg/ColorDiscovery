@@ -2,10 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Temp Project</string>
+	<string>Color Discovery</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +15,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>temp_project</string>
+	<string>color_discovery</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -41,70 +43,16 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<false/>
+	
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Uygulamanızın renk paleti oluşturabilmesi için galerinizden bir fotoğraf seçmeniz gerekiyor.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Uygulamanızın renk paleti oluşturabilmesi için kameranızla bir fotoğraf çekmeniz gerekiyor.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Uygulamanızın video kaydı yapabilmesi için mikrofonunuza erişmesi gerekiyor.</string>
+		<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
-	// lib/features/tools/presentation/screens/tools_screen.dart
-import 'package:color_discovery/features/tools/presentation/screens/image_picker_screen.dart';
-import 'package:flutter/material.dart';
-
-// 'Keşfet' ekranındaki kartın tasarımını burada YENİDEN KULLANACAĞIZ!
-import 'package:color_discovery/features/discover_quiz/presentation/widgets/quiz_option_card.dart';
-
-class ToolsScreen extends StatelessWidget {
-  const ToolsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Araçlar',
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView( // GridView yerine ListView kullanacağız
-          children: [
-            // 1. Görüntüden Palet Aracı
-            // (Daha önce yaptığımız 'QuizOptionCard' widget'ını zekice yeniden kullanıyoruz)
-            QuizOptionCard(
-              title: 'Görüntüden Palet Oluştur',
-              icon: Icons.image_search, // İkonu değiştirdik
-              onTap: () {
-                // Görev 10.1'de oluşturduğumuz ekrana git
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const ImagePickerScreen(),
-                  ),
-                );
-              },
-            ),
-            
-            const SizedBox(height: 16), // Kartlar arasına boşluk
-
-            // 2. Renk Teorisi Aracı (İleride Yapılacak)
-            QuizOptionCard(
-              title: 'Renk Teorisi Yardımcısı',
-              icon: Icons.contrast, // İkonu değiştirdik
-              onTap: () {
-                // TODO: Adım 11'de bu ekranı yapacağız
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Bu özellik yakında eklenecek!'),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 </dict>
 </plist>
