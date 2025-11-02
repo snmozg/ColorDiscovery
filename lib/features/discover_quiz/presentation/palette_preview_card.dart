@@ -1,7 +1,6 @@
 // lib/features/discover_quiz/presentation/widgets/palette_preview_card.dart
 import 'package:flutter/material.dart';
 
-// Bu widget, 5 renk ve bir isimden oluşan bir paleti gösterir
 class PalettePreviewCard extends StatelessWidget {
   const PalettePreviewCard({
     super.key,
@@ -21,7 +20,6 @@ class PalettePreviewCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. Palet Adı
             Text(
               name,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -29,20 +27,14 @@ class PalettePreviewCard extends StatelessWidget {
                   ),
             ),
             const SizedBox(height: 12),
-            
-            // 2. Renk Blokları
             SizedBox(
-              height: 80, // Renk bloklarının yüksekliği
+              height: 80, 
               child: Row(
                 children: colors.map((color) {
                   return Expanded(
                     child: Container(
-                      // 
-                      // HATA BURADAYDI: Dıştaki 'color: color,' satırı kaldırıldı.
-                      // Renk sadece 'decoration' içinde tanımlanmalı.
-                      //
                       decoration: BoxDecoration(
-                        color: color, // Renk artık sadece burada
+                        color: color,
                         borderRadius: colors.first == color
                             ? const BorderRadius.only(
                                 topLeft: Radius.circular(8),
