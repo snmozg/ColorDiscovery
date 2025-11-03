@@ -1,19 +1,27 @@
 // lib/domain/providers/quiz_providers.dart
-import 'package:color_discovery/data/models/quiz_state.dart';
+import 'package:color_discovery/data/models/quiz_state.dart'; // HATA DÜZELTİLDİ (package:color_discovery)
+import 'package:flutter/material.dart'; 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// Bu Notifier, QuizState'i (hafızayı) yönetir
 class QuizStateNotifier extends StateNotifier<QuizState> {
-  QuizStateNotifier() : super(QuizState()); // Boş bir hafıza ile başla
+  QuizStateNotifier() : super(QuizState());
 
-  // Soru 1'in cevabını hafızaya yaz
   void setProjectType(String projectType) {
     state = state.copyWith(projectType: projectType);
   }
 
-  // Soru 2'nin cevabını hafızaya yaz
   void setMood(String mood) {
     state = state.copyWith(mood: mood);
+  }
+
+  // YENİ FONKSİYON: Temel rengi hafızaya yaz
+  void setBaseColor(Color color) {
+    state = state.copyWith(baseColor: color);
+  }
+
+  // YENİ FONKSİYON: Temel rengi (atla derse) hafızadan sil
+  void clearBaseColor() {
+    state = state.copyWith(clearBaseColor: true);
   }
 
   // Test bittiğinde hafızayı temizle

@@ -1,7 +1,7 @@
 // lib/features/discover_quiz/presentation/screens/quiz_loading_screen.dart
 import 'package:flutter/material.dart';
-// Lottie'yi sildik, çünkü o hata veriyordu.
-// import 'package:lottie/lottie.dart'; 
+// LOTTIE'Yİ GERİ GETİRDİK!
+import 'package:lottie/lottie.dart'; 
 
 class QuizLoadingScreen extends StatefulWidget {
   const QuizLoadingScreen({super.key});
@@ -14,13 +14,12 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen> {
   @override
   void initState() {
     super.initState();
-    // "Analiz ediliyor" hissini vermek için 2 saniye beklet
+    // "Analiz ediliyor" hissini vermek için 3 saniye beklet
     _navigateToResults();
   }
 
   void _navigateToResults() {
-    // 3 saniye yerine 2 saniyeye düşürdüm, daha hızlı
-    Future.delayed(const Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
         // Bir önceki ekrana (quiz_start_screen) "true" döndür
         Navigator.of(context).pop(true);
@@ -37,10 +36,13 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen> {
           children: [
             //
             // DEĞİŞİKLİK BURADA:
-            // Hata veren 'Lottie.network' yerine Flutter'ın kendi
-            // güvenilir yükleme göstergesini koyduk.
-            const CircularProgressIndicator(
-              strokeWidth: 5,
+            // Sıkıcı dönen daire yerine, artık çalışan Lottie animasyonu
+            //
+            Lottie.network(
+              // Bu, test edilmiş, çalışan bir Lottie URL'idir
+              'https://assets10.lottiefiles.com/packages/lf20_p8bfn5to.json',
+              width: 250,
+              height: 250,
             ),
             //
             //

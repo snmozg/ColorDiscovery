@@ -1,59 +1,72 @@
 // lib/domain/services/palette_logic_service.dart
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; // 'Color' VE 'HSLColor' BURADAN GELİYOR
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:color_discovery/domain/providers/quiz_providers.dart';
 
-// 1. Bu servisi UI'da çağırmak için bir Provider oluştur
+// Renk Matematiği Beynini import ediyoruz
+import 'package:color_discovery/core/utils/color_utils.dart';
+import 'dart:math'; // RASTGELE renk için eklendi
+
+// Provider (Değişiklik yok)
 final paletteLogicServiceProvider = Provider<PaletteLogicService>((ref) {
-  // Bu servis, kararı verebilmek için quiz'in hafızasına (quizStateProvider) ihtiyaç duyar
   final quizState = ref.watch(quizStateProvider);
   return PaletteLogicService(quizState: quizState);
 });
 
-// 2. İş mantığımızın (Beynimizin) yaşadığı sınıf
+// İş mantığı sınıfı
 class PaletteLogicService {
-  final quizState; // Hafızadaki seçimler
+  final quizState; 
 
   PaletteLogicService({required this.quizState});
 
-  // 'getPalette' fonksiyonunu buraya taşıdık!
+  // 'getPalette' fonksiyonu
   Map<String, List<Color>> getPalette() {
+    // 1. Hafızadan seçimleri al
     final String projectType = quizState.projectType ?? 'Bilinmeyen';
     final String mood = quizState.mood ?? 'Bilinmeyen';
+    final Color? baseColor = quizState.baseColor; // Opsiyonel temel renk!
 
-    if (projectType == 'Mobil Uygulama' && mood == 'Sakin') {
-      return {
-        "Sakin Mobil Uygulama": [
-          const Color(0xFFE0E5EC), // Açık Gri (Arka Plan)
-          const Color(0xFF4A90E2), // Mavi (Ana)
-          const Color(0xFF50E3C2), // Yeşil (Vurgu)
-          const Color(0xFF34495E), // Koyu Mavi (Metin)
-          const Color(0xFFF4F7F9), // Çok Açık Gri (Kart)
-        ]
-      };
-    }
+    // 2. BEYİN KONTROLÜ:
+    final Color finalBaseColor = baseColor ?? _generateRandomColor();
 
-    if (projectType == 'Web Sitesi' && mood == 'Profesyonel') {
-       return {
-        "Kurumsal Web Sitesi": [
-          const Color(0xFF003049), // Koyu Mavi
-          const Color(0xFFD62828), // Kırmızı
-          const Color(0xFFF77F00), // Turuncu
-          const Color(0xFFFCBF49), // Sarı
-          const Color(0xFFEAE2B7), // Bej
-        ]
-      };
+    String paletteName;
+    List<Color> generatedPalette;
+
+    // 3. SEÇİLEN DUYGUYA GÖRE, 'ColorUtils' BEYNİMİZİ KULLAN
+    switch (mood) {
+      case 'Sakin':
+        paletteName = baseColor != null ? "Sakin Analog Palet" : "Rastgele Sakin Palet";
+        generatedPalette = ColorUtils.getAnalogousPalette(finalBaseColor);
+        break;
+      case 'Enerjik':
+        paletteName = baseColor != null ? "Enerjik Tamamlayıcı Palet" : "Rastgele Enerjik Palet";
+        generatedPalette = ColorUtils.getComplementaryPalette(finalBaseColor);
+        break;
+      case 'Profesyonel':
+        paletteName = baseColor != null ? "Profesyonel Monokromatik Palet" : "Rastgele Profesyonel Palet";
+        generatedPalette = ColorUtils.getMonochromaticPalette(finalBaseColor);
+        break;
+      case 'Gizemli':
+        paletteName = baseColor != null ? "Gizemli Üçlü Palet" : "Rastgele Gizemli Palet";
+        generatedPalette = ColorUtils.getTriadicPalette(finalBaseColor);
+        break;
+      default:
+        paletteName = "Rastgele Palet";
+        generatedPalette = ColorUtils.getTriadicPalette(finalBaseColor);
     }
     
-    // Diğer tüm seçimler için varsayılan Palet
-    return {
-      "Enerjik Palet": [
-        const Color(0xFFF94144),
-        const Color(0xFFF3722C),
-        const Color(0xFFF8961E),
-        const Color(0xFFF9C74F),
-        const Color(0xFF90BE6D),
-      ]
-    };
+    return {paletteName: generatedPalette};
+  }
+
+  // YENİ FONKSİYON: Rastgele, canlı bir renk üreten yardımcı
+  Color _generateRandomColor() {
+    final Random random = Random();
+    // Çok koyu veya çok soluk olmayan, "canlı" bir renk üret
+    return HSLColor.fromAHSL(
+      1.0, // Opaklık
+      random.nextDouble() * 360, // Renk Tonu (Hue)
+      (random.nextDouble() * 0.5) + 0.3, // Doygunluk (Saturation) (0.3 - 0.8 arası)
+      (random.nextDouble() * 0.4) + 0.4, // Parlaklık (Lightness) (0.4 - 0.8 arası)
+    ).toColor();
   }
 }
