@@ -1,6 +1,6 @@
 // lib/domain/providers/quiz_providers.dart
-import 'package:color_discovery/data/models/quiz_state.dart'; // HATA DÜZELTİLDİ (package:color_discovery)
-import 'package:flutter/material.dart'; 
+import 'package:color_discovery/data/models/quiz_state.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class QuizStateNotifier extends StateNotifier<QuizState> {
@@ -10,18 +10,21 @@ class QuizStateNotifier extends StateNotifier<QuizState> {
     state = state.copyWith(projectType: projectType);
   }
 
-  void setMood(String mood) {
-    state = state.copyWith(mood: mood);
-  }
-
-  // YENİ FONKSİYON: Temel rengi hafızaya yaz
   void setBaseColor(Color color) {
     state = state.copyWith(baseColor: color);
   }
 
-  // YENİ FONKSİYON: Temel rengi (atla derse) hafızadan sil
   void clearBaseColor() {
     state = state.copyWith(clearBaseColor: true);
+  }
+  
+  void setMood(String mood) {
+    state = state.copyWith(mood: mood);
+  }
+
+  // YENİ FONKSİYON: Tonu (Açık/Koyu) hafızaya yaz
+  void setTone(String tone) {
+    state = state.copyWith(tone: tone); // 'tone' artık 'quiz_state.dart'ta tanımlı
   }
 
   // Test bittiğinde hafızayı temizle
@@ -30,7 +33,7 @@ class QuizStateNotifier extends StateNotifier<QuizState> {
   }
 }
 
-// Bu provider'ı UI'da çağırarak hafızaya ulaşıp, onu güncelleyeceğiz
+// Provider (Değişiklik yok)
 final quizStateProvider =
     StateNotifierProvider<QuizStateNotifier, QuizState>((ref) {
   return QuizStateNotifier();

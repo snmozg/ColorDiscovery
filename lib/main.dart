@@ -49,27 +49,79 @@ class ColorDiscoveryApp extends StatelessWidget {
   }
 
   ThemeData _buildTheme(Brightness brightness) {
+    // 1. Temel Material 3 temasını oluştur
     final baseTheme = ThemeData(
       brightness: brightness,
       useMaterial3: true,
+      
+      // YENİ TEMA RENGİ: Mor yerine nötr bir Mavi
       colorScheme: ColorScheme.fromSeed(
-        seedColor: Colors.deepPurple,
+        seedColor: Colors.blue, // Ana marka rengimiz
         brightness: brightness,
       ),
     );
 
+    // 2. Yazı tiplerini bu temele uygula
     final textTheme = GoogleFonts.poppinsTextTheme(baseTheme.textTheme);
 
+    // 3. Temayı bizim özel stillerimizle zenginleştir
     return baseTheme.copyWith(
-      textTheme: textTheme,
+      textTheme: textTheme, // Google Fonts'u uygula
       
-      scaffoldBackgroundColor: baseTheme.colorScheme.surface,
+      // YENİ: Açık/Koyu temalar için profesyonel arka plan renkleri
+      scaffoldBackgroundColor: brightness == Brightness.dark 
+          ? const Color(0xFF1C1C1E) // Koyu Tema: Füme
+          : const Color(0xFFF7F7F7), // Açık Tema: Hafif Gri
+
+      // YENİ: Kartların görünümünü iyileştir
       cardTheme: CardThemeData(
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-        color: baseTheme.colorScheme.surfaceContainerHigh,
+        // Koyu temada kartlar arka plandan çok az daha açık olmalı
+        color: brightness == Brightness.dark
+            ? const Color(0xFF2C2C2E) 
+            : baseTheme.colorScheme.surfaceContainerHigh,
+      ),
+
+      // YENİ: AppBar (Üst bar) temasını arka plana uydur
+      appBarTheme: AppBarTheme(
+        elevation: 0,
+        // AppBar'ı tamamen transparan yap, arka plan rengini göstersin
+        backgroundColor: Colors.transparent, 
+        foregroundColor: baseTheme.colorScheme.onSurface, // Yazı rengi
+      ),
+
+      // YENİ: NavigationBar (Alt bar) temasını profesyonelleştir
+      navigationBarTheme: NavigationBarThemeData(
+        elevation: 0,
+        // Koyu temada alt bar, kartlarla aynı renk
+        backgroundColor: brightness == Brightness.dark
+            ? const Color(0xFF2C2C2E)
+            : baseTheme.colorScheme.surfaceContainerHigh,
+        // Seçili ikonun arka plan rengi
+        indicatorColor: baseTheme.colorScheme.primary.withOpacity(0.1),
+        // Seçili ikonun rengi
+        labelTextStyle: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.selected)) {
+            return textTheme.labelSmall?.copyWith(
+              color: baseTheme.colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            );
+          }
+          // Seçili olmayan ikonun rengi
+          return textTheme.labelSmall?.copyWith(
+            color: baseTheme.colorScheme.onSurface.withOpacity(0.6),
+          );
+        }),
+        iconTheme: MaterialStateProperty.resolveWith((states) {
+           if (states.contains(MaterialState.selected)) {
+             return IconThemeData(color: baseTheme.colorScheme.primary);
+           }
+           // Seçili olmayan ikonun rengi
+           return IconThemeData(color: baseTheme.colorScheme.onSurface.withOpacity(0.6));
+        }),
       ),
 
       elevatedButtonTheme: ElevatedButtonThemeData(

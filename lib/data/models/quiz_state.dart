@@ -1,28 +1,31 @@
 // lib/data/models/quiz_state.dart
-import 'package:flutter/material.dart'; // HATA DÜZELTİLDİ (package:flutter)
+import 'package:flutter/material.dart';
 
 class QuizState {
-  final String? projectType; // Soru 1: Mobil, Web etc.
-  final String? mood;        // Soru 2: Sakin, Enerjik etc.
-  final Color? baseColor;     // Soru 3: Opsiyonel temel renk
+  final String? projectType; // Soru 1
+  final Color? baseColor;     // Soru 2
+  final String? mood;        // Soru 3
+  final String? tone;        // Soru 4
 
   QuizState({
     this.projectType,
-    this.mood,
     this.baseColor,
+    this.mood,
+    this.tone,
   });
 
-  // Seçimleri güncellerken yeni bir obje oluşturmak için
   QuizState copyWith({
     String? projectType,
-    String? mood,
     Color? baseColor,
-    bool clearBaseColor = false, // Rengi 'null' olarak ayarlamak için
+    String? mood,
+    String? tone,
+    bool clearBaseColor = false,
   }) {
     return QuizState(
       projectType: projectType ?? this.projectType,
-      mood: mood ?? this.mood,
       baseColor: clearBaseColor ? null : baseColor ?? this.baseColor,
+      mood: mood ?? this.mood,
+      tone: tone ?? this.tone,
     );
   }
 }
