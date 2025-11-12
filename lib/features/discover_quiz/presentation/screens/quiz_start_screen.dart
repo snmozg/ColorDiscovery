@@ -7,9 +7,8 @@ import 'package:color_discovery/features/discover_quiz/presentation/screens/quiz
 import 'package:color_discovery/features/discover_quiz/presentation/screens/quiz_results_screen.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart'; 
 
-// Hangi adımda olduğumuzu tutan lokal provider
-final _quizStepProvider = StateProvider.autoDispose<int>((ref) => 1);
-// Seçilen temel rengi *geçici* olarak tutan lokal provider
+// 3 ADIMLI ÇALIŞAN TEST EKRANI
+final _quizStepProvider = StateProvider.autoDispose<int>((ref) => 1); 
 final _tempColorProvider = StateProvider.autoDispose<Color>((ref) => Colors.deepPurple);
 
 class QuizStartScreen extends ConsumerWidget {
@@ -28,18 +27,16 @@ class QuizStartScreen extends ConsumerWidget {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          // Geçiş animasyonu
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 400), 
             transitionBuilder: (Widget child, Animation<double> animation) {
               return FadeTransition(opacity: animation, child: child);
             },
-            // YENİ: 4 ADIMLI YAPI
+            // SADECE 3 ADIMLI YAPI
             child: switch (currentStep) {
               1 => _buildStep1(context, ref), // Soru 1: Proje
-              2 => _buildStep2(context, ref), // Soru 2: Duygu
-              3 => _buildStep3(context, ref), // Soru 3: Temel Renk
-              4 => _buildStep4(context, ref), // Soru 4: Ton
+              2 => _buildStep2(context, ref), // Soru 2: Temel Renk
+              3 => _buildStep3(context, ref), // Soru 3: Duygu
               _ => _buildStep1(context, ref),
             },
           ),
@@ -75,39 +72,11 @@ class QuizStartScreen extends ConsumerWidget {
     );
   }
 
-  // Soru 2 (Duygu/Mod)
+  // Soru 2 (Temel Renk Seçimi)
   Widget _buildStep2(BuildContext context, WidgetRef ref) {
-    return Center(
-      key: const ValueKey('Step2_Mood'),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text('Nasıl bir his vermeli?', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
-          const SizedBox(height: 32),
-          Expanded(
-            child: GridView.count(
-              crossAxisCount: 2, crossAxisSpacing: 16, mainAxisSpacing: 16, childAspectRatio: (1 / 1.2), 
-              children: [
-                QuizOptionCard(title: 'Sakin & Yatıştırıcı', icon: Icons.self_improvement, onTap: () { ref.read(quizStateProvider.notifier).setMood('Sakin'); ref.read(_quizStepProvider.notifier).state = 3; }),
-                QuizOptionCard(title: 'Enerjik & Cesur', icon: Icons.flash_on, onTap: () { ref.read(quizStateProvider.notifier).setMood('Enerjik'); ref.read(_quizStepProvider.notifier).state = 3; }),
-                QuizOptionCard(title: 'Profesyonel & Güvenilir', icon: Icons.work, onTap: () { ref.read(quizStateProvider.notifier).setMood('Profesyonel'); ref.read(_quizStepProvider.notifier).state = 3; }),
-                QuizOptionCard(title: 'Lüks & Sofistike', icon: Icons.diamond_outlined, onTap: () { ref.read(quizStateProvider.notifier).setMood('Lüks'); ref.read(_quizStepProvider.notifier).state = 3; }),
-                QuizOptionCard(title: 'Samimi & Eğlenceli', icon: Icons.sentiment_satisfied, onTap: () { ref.read(quizStateProvider.notifier).setMood('Eğlenceli'); ref.read(_quizStepProvider.notifier).state = 3; }),
-                QuizOptionCard(title: 'Doğal & Organik', icon: Icons.eco, onTap: () { ref.read(quizStateProvider.notifier).setMood('Doğal'); ref.read(_quizStepProvider.notifier).state = 3; }),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Soru 3 (Temel Renk Seçimi)
-  Widget _buildStep3(BuildContext context, WidgetRef ref) {
     final Color tempColor = ref.watch(_tempColorProvider);
-
     return Center(
-      key: const ValueKey('Step3_Color'),
+      key: const ValueKey('Step2_Color'),
       child: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -125,7 +94,7 @@ class QuizStartScreen extends ConsumerWidget {
             ElevatedButton(
               onPressed: () {
                 ref.read(quizStateProvider.notifier).setBaseColor(tempColor);
-                ref.read(_quizStepProvider.notifier).state = 4;
+                ref.read(_quizStepProvider.notifier).state = 3; // 3'e git
               },
               style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
               child: const Text('Bu Rengi Kullan ve Devam Et'),
@@ -134,9 +103,9 @@ class QuizStartScreen extends ConsumerWidget {
             TextButton(
               onPressed: () {
                 ref.read(quizStateProvider.notifier).clearBaseColor();
-                ref.read(_quizStepProvider.notifier).state = 4;
+                ref.read(_quizStepProvider.notifier).state = 3; // 3'e git
               },
-              child: const Text('Renk Seçmeden Devam Et'),
+              child: const Text('Renk Seçmeden Devam Et (Rastgele Öner)'),
             ),
           ],
         ),
@@ -144,23 +113,25 @@ class QuizStartScreen extends ConsumerWidget {
     );
   }
 
-  // Soru 4 (Ton Seçimi)
-  Widget _buildStep4(BuildContext context, WidgetRef ref) {
+  // Soru 3 (Duygu/Mod)
+  Widget _buildStep3(BuildContext context, WidgetRef ref) {
     return Center(
-      key: const ValueKey('Step4_Tone'),
+      key: const ValueKey('Step3_Mood'),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('Paletin genel tonu nasıl olmalı?', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+          Text('Nasıl bir his vermeli?', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
           const SizedBox(height: 32),
           Expanded(
             child: GridView.count(
               crossAxisCount: 2, crossAxisSpacing: 16, mainAxisSpacing: 16, childAspectRatio: (1 / 1.2), 
               children: [
-                QuizOptionCard(title: 'Açık & Havadar', icon: Icons.brightness_high, onTap: () { ref.read(quizStateProvider.notifier).setTone('Açık'); _navigateToResults(context, ref); }),
-                QuizOptionCard(title: 'Koyu & Dramatik', icon: Icons.brightness_3, onTap: () { ref.read(quizStateProvider.notifier).setTone('Koyu'); _navigateToResults(context, ref); }),
-                QuizOptionCard(title: 'Dengeli & Nötr', icon: Icons.compare_arrows, onTap: () { ref.read(quizStateProvider.notifier).setTone('Dengeli'); _navigateToResults(context, ref); }),
-                QuizOptionCard(title: 'Fark Etmez (Öner)', icon: Icons.shuffle, onTap: () { ref.read(quizStateProvider.notifier).setTone('Fark Etmez'); _navigateToResults(context, ref); }),
+                QuizOptionCard(title: 'Sakin & Yatıştırıcı', icon: Icons.self_improvement, onTap: () { ref.read(quizStateProvider.notifier).setMood('Sakin'); _navigateToResults(context, ref); }),
+                QuizOptionCard(title: 'Enerjik & Cesur', icon: Icons.flash_on, onTap: () { ref.read(quizStateProvider.notifier).setMood('Enerjik'); _navigateToResults(context, ref); }),
+                QuizOptionCard(title: 'Profesyonel & Güvenilir', icon: Icons.work, onTap: () { ref.read(quizStateProvider.notifier).setMood('Profesyonel'); _navigateToResults(context, ref); }),
+                QuizOptionCard(title: 'Lüks & Sofistike', icon: Icons.diamond_outlined, onTap: () { ref.read(quizStateProvider.notifier).setMood('Lüks'); _navigateToResults(context, ref); }),
+                QuizOptionCard(title: 'Samimi & Eğlenceli', icon: Icons.sentiment_satisfied, onTap: () { ref.read(quizStateProvider.notifier).setMood('Eğlenceli'); _navigateToResults(context, ref); }),
+                QuizOptionCard(title: 'Doğal & Organik', icon: Icons.eco, onTap: () { ref.read(quizStateProvider.notifier).setMood('Doğal'); _navigateToResults(context, ref); }),
               ],
             ),
           ),
@@ -176,7 +147,6 @@ class QuizStartScreen extends ConsumerWidget {
         builder: (context) => const QuizLoadingScreen(),
       ),
     );
-
     if (analysisDone == true && context.mounted) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(

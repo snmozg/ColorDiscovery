@@ -4,25 +4,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:color_discovery/presentation/screens/main_navigation_screen.dart';
-
-// Veritabanı Modelimiz
 import 'package:color_discovery/data/models/palette_model.dart';
+
+// --- YENİ: Modern Renk Paletimiz ---
+const Color modernNavy = Color(0xFF0D253F); // Ana Lacivert (Primary)
+const Color modernLightGray = Color(0xFFF7F7F7); // Açık Mod Arka Plan
+const Color modernDarkGray = Color(0xFF1A1A1A);  // Koyu Mod Arka Plan
+const Color modernDarkSurface = Color(0xFF2C2C2E); // Koyu Mod Kart Rengi
+// --- BİTTİ ---
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Hive (Yerel Veritabanı) başlatılıyor
   await Hive.initFlutter();
-
-  // Hive'a "çevirmenimizi" (Adapter) tanıtıyoruz
-  // BU SATIR HATA VERİYORSA, "sihirli komut" (build_runner)
-  // adımını (bir önceki adımdaki) tekrar çalıştırman gerekir.
   Hive.registerAdapter(PaletteModelAdapter());
-
-  // Paletleri saklayacağımız "kutuyu" (database'i) açıyoruz
   await Hive.openBox<PaletteModel>('palettes');
 
-  // Uygulamayı Riverpod Scope ile çalıştır
   runApp(
     const ProviderScope(
       child: ColorDiscoveryApp(),
@@ -39,7 +36,6 @@ class ColorDiscoveryApp extends StatelessWidget {
       title: 'Color Discovery',
       debugShowCheckedModeBanner: false, 
       
-      // Temaları yeni, temiz fonksiyondan al
       theme: _buildTheme(Brightness.light),
       darkTheme: _buildTheme(Brightness.dark),
       themeMode: ThemeMode.system, 
@@ -48,15 +44,18 @@ class ColorDiscoveryApp extends StatelessWidget {
     );
   }
 
+  // --- GÜNCELLENDİ: Tüm _buildTheme fonksiyonu ---
   ThemeData _buildTheme(Brightness brightness) {
+    final bool isDark = brightness == Brightness.dark;
+
     // 1. Temel Material 3 temasını oluştur
     final baseTheme = ThemeData(
       brightness: brightness,
       useMaterial3: true,
       
-      // YENİ TEMA RENGİ: Mor yerine nötr bir Mavi
+      // YENİ TEMA RENGİ: Modern Lacivert
       colorScheme: ColorScheme.fromSeed(
-        seedColor: Colors.blue, // Ana marka rengimiz
+        seedColor: modernNavy,
         brightness: brightness,
       ),
     );
@@ -69,9 +68,7 @@ class ColorDiscoveryApp extends StatelessWidget {
       textTheme: textTheme, // Google Fonts'u uygula
       
       // YENİ: Açık/Koyu temalar için profesyonel arka plan renkleri
-      scaffoldBackgroundColor: brightness == Brightness.dark 
-          ? const Color(0xFF1C1C1E) // Koyu Tema: Füme
-          : const Color(0xFFF7F7F7), // Açık Tema: Hafif Gri
+      scaffoldBackgroundColor: isDark ? modernDarkGray : modernLightGray,
 
       // YENİ: Kartların görünümünü iyileştir
       cardTheme: CardThemeData(
@@ -80,50 +77,17 @@ class ColorDiscoveryApp extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
         ),
         // Koyu temada kartlar arka plandan çok az daha açık olmalı
-        color: brightness == Brightness.dark
-            ? const Color(0xFF2C2C2E) 
-            : baseTheme.colorScheme.surfaceContainerHigh,
+        color: isDark ? modernDarkSurface : Colors.white,
       ),
 
       // YENİ: AppBar (Üst bar) temasını arka plana uydur
       appBarTheme: AppBarTheme(
         elevation: 0,
-        // AppBar'ı tamamen transparan yap, arka plan rengini göstersin
         backgroundColor: Colors.transparent, 
-        foregroundColor: baseTheme.colorScheme.onSurface, // Yazı rengi
+        foregroundColor: baseTheme.colorScheme.onSurface,
       ),
-
-      // YENİ: NavigationBar (Alt bar) temasını profesyonelleştir
-      navigationBarTheme: NavigationBarThemeData(
-        elevation: 0,
-        // Koyu temada alt bar, kartlarla aynı renk
-        backgroundColor: brightness == Brightness.dark
-            ? const Color(0xFF2C2C2E)
-            : baseTheme.colorScheme.surfaceContainerHigh,
-        // Seçili ikonun arka plan rengi
-        indicatorColor: baseTheme.colorScheme.primary.withOpacity(0.1),
-        // Seçili ikonun rengi
-        labelTextStyle: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
-            return textTheme.labelSmall?.copyWith(
-              color: baseTheme.colorScheme.primary,
-              fontWeight: FontWeight.bold,
-            );
-          }
-          // Seçili olmayan ikonun rengi
-          return textTheme.labelSmall?.copyWith(
-            color: baseTheme.colorScheme.onSurface.withOpacity(0.6),
-          );
-        }),
-        iconTheme: MaterialStateProperty.resolveWith((states) {
-           if (states.contains(MaterialState.selected)) {
-             return IconThemeData(color: baseTheme.colorScheme.primary);
-           }
-           // Seçili olmayan ikonun rengi
-           return IconThemeData(color: baseTheme.colorScheme.onSurface.withOpacity(0.6));
-        }),
-      ),
-
+      
+      // YENİ: Standart buton temasını ayarla
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           shape: RoundedRectangleBorder(
@@ -133,10 +97,11 @@ class ColorDiscoveryApp extends StatelessWidget {
           textStyle: textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
           ),
-          backgroundColor: baseTheme.colorScheme.primary,
-          foregroundColor: baseTheme.colorScheme.onPrimary,
+          backgroundColor: baseTheme.colorScheme.primary, // modernNavy
+          foregroundColor: baseTheme.colorScheme.onPrimary, // beyaz
         ),
       ),
     ); 
   }
+  // --- GÜNCELLEME BİTTİ ---
 }

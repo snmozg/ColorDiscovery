@@ -1,229 +1,134 @@
 // lib/features/discover_quiz/presentation/widgets/palette_preview_card.dart
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // Panoya Kopyalamak için
+// import 'dart:ui'; // Blur (ImageFiltered) artık kullanılmıyor.
 
-// 1. STATENLESS -> STATEFUL WIDGET DÖNÜŞÜMÜ
-class PalettePreviewCard extends StatefulWidget {
+class PalettePreviewCard extends StatelessWidget {
   const PalettePreviewCard({
     super.key,
     required this.colors,
     required this.name,
-    this.onSavePressed, 
+    this.onTap, // Tıklanma olayı için
   });
 
   final List<Color> colors;
   final String name;
-  final VoidCallback? onSavePressed;
+  final VoidCallback? onTap; // Kartın tıklanma olayı
 
-  @override
-  State<PalettePreviewCard> createState() => _PalettePreviewCardState();
-}
-
-class _PalettePreviewCardState extends State<PalettePreviewCard> {
-  // 2. KARTIN AÇIK MI KAPALI MI OLDUĞUNU TUTAN YENİ STATE (HAFIZA)
-  bool _isExpanded = false;
-
-  // Rengi HEX koduna çevirir
-  String _colorToHex(Color color) {
-    return '#${color.value.toRadixString(16).substring(2).toUpperCase()}';
-  }
-
-  // Tıklandığında panoya kopyalar
-  void _copyToClipboard(BuildContext context, String hexCode) {
-    Clipboard.setData(ClipboardData(text: hexCode));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$hexCode panoya kopyalandı!'),
-        backgroundColor: Colors.grey[800],
-        duration: const Duration(seconds: 1),
-      ),
+  // --- SADE ARKA PLAN ---
+  Widget _buildSimpleBackground(BuildContext context) {
+    return Container(
+      color: Colors.white, // Kartın arka planı tamamen beyaz
     );
   }
 
+  // --- STABİL DİKEY RENK ÇUBUKLARI WIDGET'I ---
+  /// Kartın altındaki dikey renk çubuklarını oluşturan widget.
+  Widget _buildColorSwatches(List<Color> colors) {
+    // Sadece ilk 3 rengi al
+    final List<Color> effectiveColors =
+        colors.isNotEmpty ? colors.take(3).toList() : [];
+    
+    // Her bir renk kutusu için sabit yükseklik
+    const double swatchHeight = 22.0;
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min, // İçeriği kadar yer kapla
+      children: effectiveColors.map((color) {
+        return Container(
+          height: swatchHeight,
+          width: 80, // Renk çubukları sabit genişlikte
+          color: color,
+          margin: const EdgeInsets.symmetric(vertical: 2.0),
+        );
+      }).toList(),
+    );
+  }
+
+  // --- DÜZELTİLMİŞ Ana Widget (build) ---
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      // 'AnimatedCrossFade' -> İçeriğin yumuşakça değişmesini sağlar
-      child: AnimatedCrossFade(
-        duration: const Duration(milliseconds: 300), // Animasyon süresi
-        // 3. KAPALI HAL (Sadece kartı göster)
-        firstChild: _buildCollapsedCard(context),
-        // 4. AÇIK HAL (Kartı + HEX kodlarını göster)
-        secondChild: _buildExpandedCard(context),
-        // 5. Hangi hali göstereceğimizi seç
-        crossFadeState: _isExpanded 
-            ? CrossFadeState.showSecond 
-            : CrossFadeState.showFirst,
-      ),
+    // Palet adı stili
+    final TextStyle nameTextStyle =
+        (Theme.of(context).textTheme.titleLarge ??
+                const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ))
+            .copyWith(
+      color: Colors.black87,
+      letterSpacing: 0.8,
     );
-  }
 
-  // --- KARTIN KAPALI HALİ (Eski kodumuz) ---
-  Widget _buildCollapsedCard(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(12.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return GestureDetector(
+      onTap: onTap,
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        margin: EdgeInsets.zero,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12.0),
+          // --- ANA DÜZELTME: Sabit Yükseklik (SizedBox) KALDIRILDI ---
+          // Artık kartın yüksekliği, onu çağıran GridView'ın
+          // 'childAspectRatio' ayarı tarafından belirlenecek.
+          child: Stack(
             children: [
-              Expanded(
-                child: Text(
-                  widget.name, // 'widget.name' olarak değişti
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
+              // 1. Sade Beyaz Arka Plan
+              Positioned.fill(
+                child: _buildSimpleBackground(context),
+              ),
+
+              // 2. İçerik
+              // 'Column' yapısı, 'Stack' içinde düzgün çalışması için
+              // 'Spacer' widget'ları ile yeniden düzenlendi.
+              Padding(
+                padding: const EdgeInsets.all(12.0), // Her yerden boşluk
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Üst Kısım: Palet Adı
+                    Text(
+                      name,
+                      style: nameTextStyle,
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    
+                    // Esnek boşluk
+                    const Spacer(),
+
+                    // Orta Kısım: Dikey Renk Çubukları
+                    _buildColorSwatches(colors),
+
+                    // Esnek boşluk
+                    const Spacer(),
+
+                    // Alt Kısım: ">" Butonu (sağ altta)
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary, // Lacivert
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.arrow_forward_ios,
+                          color: Colors.white,
+                          size: 16,
+                        ),
                       ),
+                    ),
+                  ],
                 ),
               ),
-              // YENİ KOPYALA BUTONU (Açma/Kapama)
-              IconButton(
-                icon: const Icon(Icons.copy_outlined),
-                tooltip: 'Renk kodlarını göster/kopyala',
-                onPressed: () {
-                  setState(() {
-                    _isExpanded = true; // Kartı AÇ
-                  });
-                },
-              ),
-              if (widget.onSavePressed != null) // 'widget.onSavePressed' olarak değişti
-                IconButton(
-                  icon: const Icon(Icons.save_alt_outlined),
-                  tooltip: 'Koleksiyona Kaydet',
-                  onPressed: widget.onSavePressed,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
             ],
           ),
-          const SizedBox(height: 12),
-          // Renk blokları (Artık tıklanabilir değil)
-          SizedBox(
-            height: 80, 
-            child: Row(
-              children: widget.colors.map((color) { // 'widget.colors' olarak değişti
-                return Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: widget.colors.first == color
-                          ? const BorderRadius.only(
-                              topLeft: Radius.circular(8),
-                              bottomLeft: Radius.circular(8),
-                            )
-                          : widget.colors.last == color
-                              ? const BorderRadius.only(
-                                  topRight: Radius.circular(8),
-                                  bottomRight: Radius.circular(8),
-                                )
-                              : null,
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // --- YENİ: KARTIN AÇIK HALİ (HEX Kodlarıyla birlikte) ---
-  Widget _buildExpandedCard(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(12.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  widget.name,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-              ),
-              // YENİ KAPAT BUTONU
-              IconButton(
-                icon: const Icon(Icons.close),
-                tooltip: 'Gizle',
-                onPressed: () {
-                  setState(() {
-                    _isExpanded = false; // Kartı KAPAT
-                  });
-                },
-              ),
-              if (widget.onSavePressed != null)
-                IconButton(
-                  icon: const Icon(Icons.save_alt_outlined),
-                  tooltip: 'Koleksiyona Kaydet',
-                  onPressed: widget.onSavePressed,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          // Renk blokları (Tıklanmaz)
-          SizedBox(
-            height: 80, 
-            child: Row(
-              children: widget.colors.map((color) {
-                return Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: widget.colors.first == color
-                          ? const BorderRadius.only(
-                              topLeft: Radius.circular(8),
-                              bottomLeft: Radius.circular(8),
-                            )
-                          : widget.colors.last == color
-                              ? const BorderRadius.only(
-                                  topRight: Radius.circular(8),
-                                  bottomRight: Radius.circular(8),
-                                )
-                              : null,
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-          
-          // YENİ EKLENEN BÖLÜM: HEX KOD LİSTESİ
-          const Divider(height: 24),
-          Text(
-            'Renk Kodları (HEX):',
-            style: Theme.of(context).textTheme.titleSmall,
-          ),
-          const SizedBox(height: 8),
-          Column(
-            children: widget.colors.map((color) {
-              final String hexCode = _colorToHex(color);
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Container(width: 12, height: 12, color: color, margin: const EdgeInsets.only(right: 8)),
-                      Text(hexCode, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.copy_all_outlined, size: 20),
-                    tooltip: '$hexCode Kopyala',
-                    onPressed: () {
-                      _copyToClipboard(context, hexCode);
-                    },
-                  ),
-                ],
-              );
-            }).toList(),
-          ),
-        ],
+        ),
       ),
     );
   }

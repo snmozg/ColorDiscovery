@@ -3,6 +3,7 @@ import 'package:color_discovery/data/models/quiz_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+// 'setTone' FONKSİYONU OLMAYAN TEMİZ HAL
 class QuizStateNotifier extends StateNotifier<QuizState> {
   QuizStateNotifier() : super(QuizState());
 
@@ -22,18 +23,13 @@ class QuizStateNotifier extends StateNotifier<QuizState> {
     state = state.copyWith(mood: mood);
   }
 
-  // YENİ FONKSİYON: Tonu (Açık/Koyu) hafızaya yaz
-  void setTone(String tone) {
-    state = state.copyWith(tone: tone); // 'tone' artık 'quiz_state.dart'ta tanımlı
-  }
+  // 'setTone' buradan kaldırıldı.
 
-  // Test bittiğinde hafızayı temizle
   void reset() {
     state = QuizState();
   }
 }
 
-// Provider (Değişiklik yok)
 final quizStateProvider =
     StateNotifierProvider<QuizStateNotifier, QuizState>((ref) {
   return QuizStateNotifier();
