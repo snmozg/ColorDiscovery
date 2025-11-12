@@ -12,9 +12,6 @@ class PaletteDetailScreen extends ConsumerWidget {
     required this.colors,
   });
 
-  // Bu ekran bir PaletteModel değil, temel bilgileri alır.
-  // Bu, hem 'Keşfet' (Map) hem de 'Koleksiyon' (PaletteModel) ekranlarından
-  // çağrılabilmesini sağlar.
   final String name;
   final List<Color> colors;
 
@@ -38,9 +35,6 @@ class PaletteDetailScreen extends ConsumerWidget {
   // Paleti Hive veritabanına kaydeder
   void _savePalette(BuildContext context) {
     final box = Hive.box<PaletteModel>('palettes');
-
-    // Güvenlik kontrolü: Bu isimde bir palet zaten var mı?
-    // (Daha gelişmiş bir 'equals' kontrolü de yapılabilir)
     final isAlreadySaved = box.values.any((palette) => palette.name == name);
 
     if (isAlreadySaved) {
@@ -53,7 +47,6 @@ class PaletteDetailScreen extends ConsumerWidget {
       return;
     }
 
-    // Kaydet
     final newPalette = PaletteModel(
       name: name,
       colors: colors.map((color) => color.value).toList(),
@@ -82,27 +75,28 @@ class PaletteDetailScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // 1. Dikey Renk Paleti (Büyük)
-            Container(
-              height: 300, // Görseldeki gibi büyük
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: theme.cardColor,
-                border: Border.all(
-                  color: theme.colorScheme.outlineVariant.withOpacity(0.3),
-                  width: 1,
+            // 1. Dikey Renk Paleti (Daraltılmış ve Ortalanmış)
+            Center(
+              child: Container(
+                height: 300,
+                width: 220, // Sabit, daha dar bir genişlik
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: theme.cardColor,
+                  border: Border.all(
+                    color: theme.colorScheme.outlineVariant.withOpacity(0.3),
+                    width: 1,
+                  ),
                 ),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                // Renkleri dikey Column ile diz
-                child: Column(
-                  children: colors
-                      .map((color) => Expanded(
-                            child: Container(color: color),
-                          ))
-                      .toList(),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Column(
+                    children: colors
+                        .map((color) => Expanded(
+                              child: Container(color: color),
+                            ))
+                        .toList(),
+                  ),
                 ),
               ),
             ),
@@ -122,7 +116,6 @@ class PaletteDetailScreen extends ConsumerWidget {
             const Divider(height: 40),
 
             // 3. Renk Kodları Listesi
-            // 'ListView' yerine 'Column' kullanıyoruz ki sayfa kaydırılabilir olsun
             Column(
               children: colors.map((color) {
                 final hexCode = _colorToHex(color);
@@ -130,7 +123,6 @@ class PaletteDetailScreen extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: Row(
                     children: [
-                      // Renk Kutusu (Görseldeki gibi)
                       Container(
                         width: 40,
                         height: 40,
@@ -142,7 +134,6 @@ class PaletteDetailScreen extends ConsumerWidget {
                                     .withOpacity(0.3))),
                       ),
                       const SizedBox(width: 16),
-                      // HEX Kodu
                       Text(
                         hexCode,
                         style: theme.textTheme.bodyLarge?.copyWith(
@@ -150,7 +141,6 @@ class PaletteDetailScreen extends ConsumerWidget {
                         ),
                       ),
                       const Spacer(),
-                      // Kopyala Butonu (Görseldeki gibi)
                       IconButton(
                         icon: const Icon(Icons.copy_outlined),
                         tooltip: '$hexCode Kopyala',
@@ -164,15 +154,23 @@ class PaletteDetailScreen extends ConsumerWidget {
 
             const SizedBox(height: 32),
 
-            // 4. Kaydet Butonu (Görseldeki gibi)
-            FilledButton.icon(
-              icon: const Icon(Icons.save_alt_outlined),
-              label: const Text('Koleksiyona Kaydet'),
+            // --- DÜZELTME BURADA ---
+            // 4. Kaydet Butonu (Sadece İkon)
+            FilledButton(
+              // 'label' (yazı) kaldırıldı.
+              // 'icon' yerine 'child' (ana içerik) kullanıldı.
+              child: const Icon(Icons.save_alt_outlined, size: 28),
               style: FilledButton.styleFrom(
-                minimumSize: const Size(double.infinity, 50),
+                // 'minimumSize' (yatay genişlik) kaldırıldı.
+                // 'padding' ile butonu kareye yakın ve estetik hale getirelim.
+                padding: const EdgeInsets.all(20),
+                // 'shape' ile tam yuvarlak (dairesel) yapalım.
+                shape: const CircleBorder(),
               ),
               onPressed: () => _savePalette(context),
             ),
+            // --- DÜZELTME BİTTİ ---
+            
             const SizedBox(height: 16),
           ],
         ),
